@@ -488,6 +488,9 @@ export default function Home() {
             </svg>
             <span>联系作者</span>
           </button>
+          <button onClick={() => setIsContactModalOpen(true)} >
+          <span className="text-orange-500 font-medium">🎁 进群限时领取免费 claude-4.5-sonnet key</span>
+          </button>
         </div>
       </footer>
 
