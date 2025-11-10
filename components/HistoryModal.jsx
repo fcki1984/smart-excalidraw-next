@@ -55,6 +55,11 @@ export default function HistoryModal({ isOpen, onClose, onApply }) {
   };
 
   const truncateText = (text, maxLength = 100) => {
+    if (!text) return '';
+    // Handle case where text might be an object (for image uploads)
+    if (typeof text === 'object') {
+      return text.text || '图片上传生成';
+    }
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 

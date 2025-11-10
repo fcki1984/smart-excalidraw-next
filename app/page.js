@@ -281,9 +281,14 @@ export default function Home() {
 
       // Save to history (only for text input)
       if (userMessage && optimizedCode) {
+        // Ensure userInput is always a string for history storage
+        const userInputText = typeof userMessage === 'object'
+          ? (userMessage.text || '图片上传生成')
+          : userMessage;
+
         historyManager.addHistory({
           chartType,
-          userInput: userMessage,
+          userInput: userInputText,
           generatedCode: optimizedCode,
           config: {
             name: config.name || config.type,
@@ -381,7 +386,12 @@ export default function Home() {
 
   // Handle applying history
   const handleApplyHistory = (history) => {
-    setCurrentInput(history.userInput);
+    // Ensure userInput is always a string when setting current input
+    const userInputText = typeof history.userInput === 'object'
+      ? (history.userInput.text || '图片上传生成')
+      : history.userInput;
+
+    setCurrentInput(userInputText);
     setCurrentChartType(history.chartType);
     setGeneratedCode(history.generatedCode);
     tryParseAndApply(history.generatedCode);
