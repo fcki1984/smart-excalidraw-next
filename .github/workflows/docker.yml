@@ -58,7 +58,7 @@ jobs:
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v2
         with:
-          images: bestinera/tubearchivist
+          images: bestinera/excalidraw-next
           flavor: |
               latest=auto
           tags: |
