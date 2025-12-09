@@ -56,34 +56,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Collect Docker tags
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v2
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: bestinera/excalidraw-next
+          flavor: |
+              latest=auto
           tags: |
-            # 分支标签
-            type=ref,event=branch
-            # PR标签
-            type=ref,event=pr
-            # 语义化版本标签
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            # latest标签 - 仅在main分支推送时生成
-            type=raw,value=latest,enable={{is_default_branch}}
-            # commit hash标签
-            type=sha,prefix=sha-
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+              type=ref,event=branch
+              type=semver,pattern={{version}}
+              type=semver,pattern={{major}}.{{minor}}
+              type=sha
+      
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
         with:
-          context: build-context
-          platforms: linux/amd64,linux/arm64
+          context: ./
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+          
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+          platforms: linux/amd64
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
