@@ -149,6 +149,7 @@ export default function ConfigModal({ isOpen, onClose, onSave, initialConfig, sh
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-900"
             >
               <option value="openai">OpenAI</option>
+              <option value="openai-responses">OpenAI Responses</option>
               <option value="anthropic">Anthropic</option>
             </select>
           </div>
@@ -162,7 +163,7 @@ export default function ConfigModal({ isOpen, onClose, onSave, initialConfig, sh
               type="text"
               value={config.baseUrl}
               onChange={(e) => setConfig({ ...config, baseUrl: e.target.value })}
-              placeholder={config.type === 'openai' ? 'https://api.openai.com/v1' : 'https://api.anthropic.com/v1'}
+              placeholder={config.type === 'anthropic' ? 'https://api.anthropic.com/v1' : 'https://api.openai.com/v1'}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
           </div>
