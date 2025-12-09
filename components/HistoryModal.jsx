@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { historyManager } from '../lib/history-manager.js';
 import { CHART_TYPES } from '../lib/constants.js';
 import ConfirmDialog from './ConfirmDialog';
 
 export default function HistoryModal({ isOpen, onClose, onApply }) {
-  const [histories, setHistories] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: '',
@@ -14,16 +14,14 @@ export default function HistoryModal({ isOpen, onClose, onApply }) {
     onConfirm: null
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      loadHistories();
-    }
-  }, [isOpen]);
+  const histories = useMemo(
+    () => (isOpen ? historyManager.getHistories() : []),
+    [isOpen, refreshKey]
+  );
 
-  const loadHistories = () => {
-    const allHistories = historyManager.getHistories();
-    setHistories(allHistories);
-  };
+  const refreshHistories = useCallback(() => {
+    setRefreshKey((key) => key + 1);
+  }, []);
 
   const handleApply = (history) => {
     onApply?.(history);
@@ -37,7 +35,7 @@ export default function HistoryModal({ isOpen, onClose, onApply }) {
       message: '确定要删除这条历史记录吗？',
       onConfirm: () => {
         historyManager.deleteHistory(id);
-        loadHistories();
+        refreshHistories();
       }
     });
   };
@@ -49,7 +47,7 @@ export default function HistoryModal({ isOpen, onClose, onApply }) {
       message: '确定要清空所有历史记录吗？此操作不可恢复。',
       onConfirm: () => {
         historyManager.clearAll();
-        loadHistories();
+        refreshHistories();
       }
     });
   };
